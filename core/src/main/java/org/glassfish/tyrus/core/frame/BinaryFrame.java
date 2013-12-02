@@ -40,17 +40,39 @@
 
 package org.glassfish.tyrus.core.frame;
 
-import org.glassfish.tyrus.core.DataFrame;
+import org.glassfish.tyrus.core.Frame;
 import org.glassfish.tyrus.core.WebSocket;
 
-public class BinaryFrame extends BaseFrame {
+public class BinaryFrame extends TyrusFrame {
+
+    private final boolean continuation;
+
+    public BinaryFrame(Frame frame) {
+        super(frame);
+        this.continuation = false;
+    }
+
+    public BinaryFrame(Frame frame, boolean continuation) {
+        super(frame);
+        this.continuation = continuation;
+    }
+
+    public BinaryFrame(byte[] payload, boolean continuation, boolean fin) {
+        super(Frame.builder().payloadData(payload).opcode(continuation ? (byte) 0x00 : (byte) 0x02).fin(fin).build());
+        this.continuation = continuation;
+    }
 
     @Override
-    public void respond(WebSocket socket, DataFrame frame) {
-        if (!frame.isLast()) {
-            socket.onFragment(frame.isLast(), frame.getBytes());
+    public void respond(WebSocket socket) {
+
+        if (continuation) {
+            socket.onFragment(isFin(), this);
         } else {
-            socket.onMessage(frame.getBytes());
+            if (isFin()) {
+                socket.onMessage(this);
+            } else {
+                socket.onFragment(false, this);
+            }
         }
     }
 }

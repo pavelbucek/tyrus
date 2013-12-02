@@ -40,13 +40,21 @@
 
 package org.glassfish.tyrus.core.frame;
 
-import org.glassfish.tyrus.core.DataFrame;
+import org.glassfish.tyrus.core.Frame;
 import org.glassfish.tyrus.core.WebSocket;
 
-public class PongFrame extends BaseFrame {
+public class PongFrame extends TyrusFrame {
+
+    public PongFrame(Frame frame) {
+        super(frame);
+    }
+
+    public PongFrame(byte[] payload) {
+        super(Frame.builder().fin(true).opcode((byte) 0x0A).payloadData(payload).build());
+    }
 
     @Override
-    public void respond(WebSocket socket, DataFrame frame) {
-        socket.onPong(frame);
+    public void respond(WebSocket socket) {
+        socket.onPong(this);
     }
 }

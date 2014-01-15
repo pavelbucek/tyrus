@@ -146,6 +146,7 @@ class GrizzlyClientFilter extends BaseFilter {
 
         if (proxy) {
             UPGRADE_REQUEST.set(ctx.getConnection(), upgradeRequest);
+            System.out.println("$$$ " + ctx.getConnection());
 
             final URI requestURI = URI.create(upgradeRequest.getRequestUri());
             final int requestPort = requestURI.getPort() == -1 ? (requestURI.getScheme().equals("wss") ? 443 : 80) : requestURI.getPort();
@@ -238,6 +239,8 @@ class GrizzlyClientFilter extends BaseFilter {
         // proxy
         final HttpStatus httpStatus = ((HttpResponsePacket) message.getHttpHeader()).getHttpStatus();
 
+        System.out.println("$$$ ### " + ((HttpResponsePacket) message.getHttpHeader()));
+
         if (httpStatus.getStatusCode() != 101) {
             if (proxy) {
                 if (httpStatus == HttpStatus.OK_200) {
@@ -248,9 +251,10 @@ class GrizzlyClientFilter extends BaseFilter {
                         ((GrizzlyClientSocket.FilterWrapper) sslFilter).enable();
                     }
 
+                    System.out.println("$$$ $$$ " + grizzlyConnection);
                     final UpgradeRequest upgradeRequest = UPGRADE_REQUEST.get(grizzlyConnection);
                     ctx.write(getHttpContent(upgradeRequest));
-                    UPGRADE_REQUEST.remove(grizzlyConnection);
+//                    UPGRADE_REQUEST.remove(grizzlyConnection);
                 } else {
                     throw new IOException(String.format("Proxy error. %s: %s", httpStatus.getStatusCode(),
                             new String(httpStatus.getReasonPhraseBytes(), "UTF-8")));

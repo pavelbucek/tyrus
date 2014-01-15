@@ -41,6 +41,7 @@
 package org.glassfish.tyrus.sample.echo;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -52,11 +53,11 @@ import javax.websocket.MessageHandler;
 import javax.websocket.Session;
 
 import org.glassfish.tyrus.client.ClientManager;
+import org.glassfish.tyrus.container.grizzly.client.GrizzlyClientSocket;
 import org.glassfish.tyrus.server.Server;
 import org.glassfish.tyrus.test.tools.TestContainer;
 
 import org.junit.Test;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 /**
@@ -77,6 +78,9 @@ public class EchoTest extends TestContainer {
 
         try {
             final ClientManager client = ClientManager.createClient();
+
+            client.getProperties().put(GrizzlyClientSocket.PROXY_URI, "http://<<< PROXY >>>:80");
+
             client.connectToServer(new Endpoint() {
                 @Override
                 public void onOpen(Session session, EndpointConfig EndpointConfig) {
@@ -100,10 +104,9 @@ public class EchoTest extends TestContainer {
                         // do nothing
                     }
                 }
-            }, ClientEndpointConfig.Builder.create().build(), getURI(EchoEndpoint.class));
+            }, ClientEndpointConfig.Builder.create().build(), URI.create("ws://echo.websocket.org"));
 
-            assertTrue(messageLatch.await(1, TimeUnit.SECONDS));
-            assertTrue(onOpenLatch.await(1, TimeUnit.SECONDS));
+            onOpenLatch.await(5, TimeUnit.SECONDS);
 
         } catch (Exception e) {
             e.printStackTrace();

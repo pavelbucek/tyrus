@@ -101,6 +101,8 @@ public class GrizzlyClientSocket {
      */
     public static final String PROXY_URI = "org.glassfish.tyrus.client.proxy";
 
+    public static final String PROXY_HEADERS = "org.glassfish.tyrus.client.proxy.headers";
+
     /**
      * Client-side property to set custom worker {@link ThreadPoolConfig}.
      * <p/>
@@ -128,6 +130,7 @@ public class GrizzlyClientSocket {
     private final boolean sharedTransport;
     private final Integer sharedTransportTimeout;
     private final SocketAddress socketAddress;
+    private final Map<String, String> proxyHeaders;
 
     private static volatile TCPNIOTransport transport;
     private static final Object TRANSPORT_LOCK = new Object();
@@ -144,6 +147,8 @@ public class GrizzlyClientSocket {
                         Map<String, Object> properties) {
         this.uri = uri;
         this.timeoutMs = timeoutMs;
+        //noinspection unchecked
+        this.proxyHeaders = properties == null ? null : (Map<String, String>) properties.get(GrizzlyClientSocket.PROXY_HEADERS);
 
         SSLEngineConfigurator sslEngineConfigurator = (properties == null ? null : (SSLEngineConfigurator) properties.get(GrizzlyClientContainer.SSL_ENGINE_CONFIGURATOR));
         // if we are trying to access "wss" scheme and we don't have sslEngineConfigurator instance
@@ -229,13 +234,13 @@ public class GrizzlyClientSocket {
 
             switch (proxy.type()) {
                 case DIRECT:
-                    connectorHandler.setProcessor(createFilterChain(engine, null, clientSSLEngineConfigurator, false, uri, timeoutHandler, sharedTransport, sharedTransportTimeout));
+                    connectorHandler.setProcessor(createFilterChain(engine, null, clientSSLEngineConfigurator, false, uri, timeoutHandler, sharedTransport, sharedTransportTimeout, proxyHeaders));
 
                     LOGGER.log(Level.CONFIG, String.format("Connecting to '%s' (no proxy).", uri));
                     connectionGrizzlyFuture = connectorHandler.connect(socketAddress);
                     break;
                 default:
-                    connectorHandler.setProcessor(createFilterChain(engine, null, clientSSLEngineConfigurator, true, uri, timeoutHandler, sharedTransport, sharedTransportTimeout));
+                    connectorHandler.setProcessor(createFilterChain(engine, null, clientSSLEngineConfigurator, true, uri, timeoutHandler, sharedTransport, sharedTransportTimeout, proxyHeaders));
 
                     LOGGER.log(Level.CONFIG, String.format("Connecting to '%s' via proxy '%s'.", uri, proxy));
 
@@ -409,7 +414,8 @@ public class GrizzlyClientSocket {
                                                boolean proxy,
                                                URI uri,
                                                ClientEngine.TimeoutHandler timeoutHandler,
-                                               boolean sharedTransport, Integer sharedTransportTimeout) {
+                                               boolean sharedTransport, Integer sharedTransportTimeout,
+                                               Map<String, String> proxyHeaders) {
         FilterChainBuilder clientFilterChainBuilder = FilterChainBuilder.stateless();
         Filter sslFilter = null;
 
@@ -430,7 +436,7 @@ public class GrizzlyClientSocket {
         clientFilterChainBuilder.add(httpCodecFilter);
 
         clientFilterChainBuilder.add(new GrizzlyClientFilter(engine, proxy,
-                sslFilter, httpCodecFilter, uri, timeoutHandler, sharedTransport));
+                sslFilter, httpCodecFilter, uri, timeoutHandler, sharedTransport, proxyHeaders));
 
         return clientFilterChainBuilder.build();
     }

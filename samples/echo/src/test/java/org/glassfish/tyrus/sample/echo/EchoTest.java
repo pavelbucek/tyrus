@@ -79,6 +79,17 @@ public class EchoTest extends TestContainer {
 
         try {
             final ClientManager client = ClientManager.createClient();
+
+/*
+            // PROXY START
+            client.getProperties().put(GrizzlyClientSocket.PROXY_URI, "http://my.proxy:8080"); // or -Dhttp.proxyHost and -Dhttp.proxyPort
+
+            final HashMap<String, String> headers = new HashMap<String, String>();
+            headers.put("Proxy-Authorization", "Basic " + Base64Utils.encodeToString("username:password".getBytes(Charset.forName("UTF-8")), false));
+
+            client.getProperties().put(GrizzlyClientSocket.PROXY_HEADERS, headers);
+            // PROXY END
+*/
             final Session session = client.connectToServer(new Endpoint() {
                 @Override
                 public void onOpen(Session session, EndpointConfig EndpointConfig) {

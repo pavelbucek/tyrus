@@ -41,6 +41,7 @@
 package org.glassfish.tyrus.sample.echo;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -109,12 +110,21 @@ public class EchoTest extends TestContainer {
                     System.out.println("### Client session closed: " + closeReason);
                     onCloseLatch.countDown();
                 }
-            }, ClientEndpointConfig.Builder.create().build(), getURI(EchoEndpoint.class));
+            }, ClientEndpointConfig.Builder.create().build(), URI.create("ws://localhost:8080/sample-echo/echo"));
 
             assertTrue(messageLatch.await(1, TimeUnit.SECONDS));
             assertTrue(onOpenLatch.await(1, TimeUnit.SECONDS));
+
+            session.close();
             assertTrue(onCloseLatch.await(10, TimeUnit.SECONDS));
 
+            System.out.println("connection should be closed");
+            for(int i = 10; i > 0; i--) {
+                System.out.println("exiting in " + i + "s...");
+                Thread.sleep(1000);
+            }
+
+            System.out.println("done!");
         } catch (Exception e) {
             e.printStackTrace();
             fail();

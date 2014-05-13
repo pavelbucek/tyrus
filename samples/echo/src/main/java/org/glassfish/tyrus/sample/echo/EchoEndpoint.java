@@ -42,6 +42,8 @@ package org.glassfish.tyrus.sample.echo;
 
 import java.io.IOException;
 
+import javax.websocket.CloseReason;
+import javax.websocket.OnClose;
 import javax.websocket.OnError;
 import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
@@ -59,7 +61,11 @@ public class EchoEndpoint {
     @OnMessage
     public void echo(Session session, String message) throws IOException {
         session.getBasicRemote().sendText(message + " (from your server)");
-        session.close();
+    }
+
+    @OnClose
+    public void onClose(Session session, CloseReason closeReason) {
+        System.out.println("### onClose " + closeReason);
     }
 
     @OnError

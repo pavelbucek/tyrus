@@ -40,7 +40,6 @@
 
 package org.glassfish.tyrus.core;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
@@ -375,11 +374,11 @@ public final class ProtocolHandler {
             throw new IllegalStateException(LocalizationMessages.CONNECTION_NULL());
         }
 
-        try {
-            localWriter.close();
-        } catch (IOException e) {
-            throw new IllegalStateException(LocalizationMessages.IOEXCEPTION_CLOSE(), e);
-        }
+//        try {
+//            localWriter.close();
+//        } catch (IOException e) {
+//            throw new IllegalStateException(LocalizationMessages.IOEXCEPTION_CLOSE(), e);
+//        }
     }
 
     public ByteBuffer frame(Frame frame) {

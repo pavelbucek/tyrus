@@ -42,32 +42,56 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <parent>
-        <groupId>org.glassfish.tyrus</groupId>
-        <artifactId>tyrus-project</artifactId>
-        <version>1.11-SNAPSHOT</version>
+        <groupId>org.glassfish.tyrus.ext</groupId>
+        <artifactId>tyrus-extensions-project</artifactId>
+        <version>1.10-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.glassfish.tyrus.ext</groupId>
-    <artifactId>tyrus-extensions-project</artifactId>
-    <packaging>pom</packaging>
-    <name>Tyrus Extension Modules</name>
+    <artifactId>tyrus-cdi-weld</artifactId>
+    <packaging>bundle</packaging>
+    <name>Tyrus CDI Weld Extension</name>
 
-    <modules>
-        <module>client-cli</module>
-        <module>monitoring-jmx</module>
-    </modules>
+    <dependencies>
 
-    <profiles>
-        <profile>
-            <id>jdk7</id>
-            <activation>
-                <jdk>[1.7,2)</jdk>
-            </activation>
-            <modules>
-                <module>cdi-weld</module>
-                <module>extension-deflate</module>
-            </modules>
-        </profile>
-    </profiles>
+        <dependency>
+            <groupId>org.jboss.weld.se</groupId>
+            <artifactId>weld-se-core</artifactId>
+            <version>3.0.0.Alpha4</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <inherited>true</inherited>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.glassfish.tyrus.ext.cdi.weld;version=${project.version}</Export-Package>
+                        <Import-Package>javax.websocket;version=${apijar.bundle.version},*</Import-Package>
+                    </instructions>
+                    <unpackBundle>true</unpackBundle>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>${client.main.class}</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+
 </project>

@@ -489,13 +489,13 @@ public class TyrusClientEngine implements ClientEngine {
                      */
                     boolean alreadyAdded = false;
 
-                    for(Extension extension : extensions) {
-                        if(extension.getName().equals(responseExtensionName)) {
+                    for (Extension extension : extensions) {
+                        if (extension.getName().equals(responseExtensionName)) {
                             alreadyAdded = true;
                         }
                     }
 
-                    if(!alreadyAdded) {
+                    if (!alreadyAdded) {
                         if (installedExtension instanceof ExtendedExtension) {
                             ((ExtendedExtension) installedExtension).onHandshakeResponse(extensionContext, responseExtension.getParameters());
                         }
@@ -669,6 +669,9 @@ public class TyrusClientEngine implements ClientEngine {
                             buffer = data;
                             break;
                         } else {
+
+                            // XXX FrameScope START
+
                             for (Extension extension : negotiatedExtensions) {
                                 if (extension instanceof ExtendedExtension) {
                                     try {
@@ -680,6 +683,8 @@ public class TyrusClientEngine implements ClientEngine {
                             }
 
                             handler.process(frame, socket);
+
+                            // XXX FrameScope STOP
                         }
                     } while (true);
                 }

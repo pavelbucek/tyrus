@@ -628,6 +628,9 @@ public class TyrusEndpointWrapper {
      */
     Session onConnect(TyrusWebSocket socket, UpgradeRequest upgradeRequest, String subProtocol, List<Extension> extensions, String connectionId, DebugContext debugContext) {
         TyrusSession session = webSocketToSession.get(socket);
+
+        // XXX SessionScope START -- CLIENT!
+
         // session is null on Server; client always has session instance at this point.
         if (session == null) {
             final Map<String, String> templateValues = new HashMap<String, String>();
@@ -643,6 +646,8 @@ public class TyrusEndpointWrapper {
                     upgradeRequest.getParameterMap(), clusterContext, connectionId,
                     ((RequestContext) upgradeRequest).getRemoteAddr(), debugContext);
             webSocketToSession.put(socket, session);
+
+            // XXX SessionScope START -- SERVER!
 
             // max open session per endpoint exceeded?
             boolean maxSessionPerEndpointExceeded = configuration instanceof TyrusServerEndpointConfig &&
@@ -1227,6 +1232,8 @@ public class TyrusEndpointWrapper {
             endpointEventListener.onSessionClosed(session.getId());
             componentProvider.removeSession(session);
             sessionListener.onClose(session, closeReason);
+
+            // XXX SessionScope STOP -- CLIENT+SERVER!
         }
     }
 

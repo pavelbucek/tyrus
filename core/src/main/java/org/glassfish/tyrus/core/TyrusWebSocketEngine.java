@@ -511,6 +511,9 @@ public class TyrusWebSocketEngine implements WebSocketEngine {
                             buffer = data;
                             break;
                         } else {
+
+                            // XXX FrameScope START
+
                             Frame frame = incomingFrame;
 
                             for (Extension extension : protocolHandler.getExtensions()) {
@@ -524,6 +527,8 @@ public class TyrusWebSocketEngine implements WebSocketEngine {
                             }
 
                             protocolHandler.process(frame, socket);
+
+                            // XXX FrameScope END
                         }
                     } while (true);
                 }

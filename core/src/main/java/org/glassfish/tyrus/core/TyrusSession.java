@@ -265,10 +265,7 @@ public class TyrusSession implements Session, DistributedSession {
 
     @Override
     public Set<Session> getOpenSessions() {
-        Set<Session> openSessions = new HashSet<Session>();
-        openSessions.addAll(endpointWrapper.getOpenSessions());
-
-        return Collections.unmodifiableSet(openSessions);
+        return Collections.<Session>unmodifiableSet(endpointWrapper.getOpenSessions());
     }
 
     /**

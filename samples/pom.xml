@@ -58,6 +58,7 @@
         <module>auction</module>
         <module>cdi</module>
         <module>chat</module>
+        <module>cooperative-editor</module>
         <module>draw</module>
         <module>echo</module>
         <module>echo-basic-auth</module>

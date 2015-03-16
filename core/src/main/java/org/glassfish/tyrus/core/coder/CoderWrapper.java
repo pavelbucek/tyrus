@@ -50,7 +50,7 @@ import javax.websocket.Encoder;
  * @author Stepan Kopriva (stepan.kopriva at oracle.com)
  * @author Pavel Bucek (pavel.bucek at oracle.com)
  */
-public class CoderWrapper<T> extends CoderAdapter implements Decoder, Encoder {
+public class CoderWrapper<T> implements Decoder, Encoder {
 
     private final Class<? extends T> coderClass;
     private final T coder;

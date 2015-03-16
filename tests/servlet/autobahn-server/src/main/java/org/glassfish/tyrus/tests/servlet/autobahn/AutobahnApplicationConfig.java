@@ -41,7 +41,6 @@
 package org.glassfish.tyrus.tests.servlet.autobahn;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -71,10 +70,5 @@ public class AutobahnApplicationConfig implements ServerApplicationConfig {
                 add(serverEndpointConfig);
             }
         };
-    }
-
-    @Override
-    public Set<Class<?>> getAnnotatedEndpointClasses(Set<Class<?>> scanned) {
-        return Collections.<Class<?>>emptySet();
     }
 }

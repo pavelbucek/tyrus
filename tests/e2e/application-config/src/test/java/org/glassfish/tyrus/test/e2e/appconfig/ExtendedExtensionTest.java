@@ -102,11 +102,6 @@ public class ExtendedExtensionTest extends TestContainer {
                             .build());
             return endpointConfigs;
         }
-
-        @Override
-        public Set<Class<?>> getAnnotatedEndpointClasses(Set<Class<?>> scanned) {
-            return Collections.<Class<?>>emptySet();
-        }
     }
 
     /**

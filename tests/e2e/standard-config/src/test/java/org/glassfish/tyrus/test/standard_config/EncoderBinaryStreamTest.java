@@ -57,7 +57,6 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.glassfish.tyrus.client.ClientManager;
-import org.glassfish.tyrus.core.coder.CoderAdapter;
 import org.glassfish.tyrus.server.Server;
 import org.glassfish.tyrus.test.tools.TestContainer;
 
@@ -88,7 +87,7 @@ public class EncoderBinaryStreamTest extends TestContainer {
 
     }
 
-    public static class BinaryStreamEncoder extends CoderAdapter implements Encoder.BinaryStream<Apple> {
+    public static class BinaryStreamEncoder implements Encoder.BinaryStream<Apple> {
         @Override
         public void encode(Apple object, OutputStream os) throws EncodeException, IOException {
             os.write("apple".getBytes());

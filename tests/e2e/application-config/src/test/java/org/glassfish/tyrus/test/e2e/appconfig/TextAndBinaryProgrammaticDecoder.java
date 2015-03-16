@@ -60,7 +60,6 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
 
-import org.glassfish.tyrus.core.coder.CoderAdapter;
 import org.glassfish.tyrus.server.Server;
 import org.glassfish.tyrus.server.TyrusServerConfiguration;
 import org.glassfish.tyrus.test.tools.TestContainer;
@@ -205,7 +204,7 @@ public class TextAndBinaryProgrammaticDecoder extends TestContainer {
         }
     }
 
-    public static class BinaryContainerDecoder extends CoderAdapter implements Decoder.Binary<Message> {
+    public static class BinaryContainerDecoder implements Decoder.Binary<Message> {
         @Override
         public Message decode(ByteBuffer bytes) throws DecodeException {
             return new Message(true);
@@ -217,7 +216,7 @@ public class TextAndBinaryProgrammaticDecoder extends TestContainer {
         }
     }
 
-    public static class TextContainerDecoder extends CoderAdapter implements Decoder.Text<Message> {
+    public static class TextContainerDecoder implements Decoder.Text<Message> {
         @Override
         public Message decode(String s) throws DecodeException {
             return new Message(false);

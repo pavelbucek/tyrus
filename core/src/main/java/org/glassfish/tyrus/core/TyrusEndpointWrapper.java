@@ -286,16 +286,6 @@ public class TyrusEndpointWrapper {
             private final Map<String, Object> properties = new HashMap<String, Object>();
 
             @Override
-            public List<Class<? extends Encoder>> getEncoders() {
-                return Collections.emptyList();
-            }
-
-            @Override
-            public List<Class<? extends Decoder>> getDecoders() {
-                return Collections.emptyList();
-            }
-
-            @Override
             public Map<String, Object> getUserProperties() {
                 return properties;
             }

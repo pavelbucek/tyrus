@@ -40,7 +40,6 @@
 package org.glassfish.tyrus.sample.programmaticecho;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -65,11 +64,6 @@ public class MyWsConfiguration implements ServerApplicationConfig {
                 add(ServerEndpointConfig.Builder.create(EchoEndpoint.class, "/echo").build());
             }
         };
-    }
-
-    @Override
-    public Set<Class<?>> getAnnotatedEndpointClasses(Set<Class<?>> scanned) {
-        return Collections.emptySet();
     }
 
     public static class EchoEndpoint extends Endpoint {

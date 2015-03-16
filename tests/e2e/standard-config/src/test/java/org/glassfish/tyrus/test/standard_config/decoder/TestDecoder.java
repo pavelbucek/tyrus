@@ -42,7 +42,6 @@ package org.glassfish.tyrus.test.standard_config.decoder;
 import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 
-import org.glassfish.tyrus.core.coder.CoderAdapter;
 import org.glassfish.tyrus.test.standard_config.message.TestMessage;
 
 /**
@@ -50,7 +49,7 @@ import org.glassfish.tyrus.test.standard_config.message.TestMessage;
  *
  * @author Stepan Kopriva (stepan.kopriva at oracle.com)
  */
-public class TestDecoder extends CoderAdapter implements Decoder.Text<TestMessage> {
+public class TestDecoder implements Decoder.Text<TestMessage> {
     @Override
     public TestMessage decode(String s) throws DecodeException {
         return new TestMessage(s.substring(TestMessage.PREFIX.length(), s.length()));

@@ -58,7 +58,6 @@ import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
 import org.glassfish.tyrus.client.ClientManager;
-import org.glassfish.tyrus.core.coder.CoderAdapter;
 import org.glassfish.tyrus.server.Server;
 import org.glassfish.tyrus.test.standard_config.message.StringContainer;
 import org.glassfish.tyrus.test.tools.TestContainer;
@@ -264,7 +263,7 @@ public class EncodedObjectTest extends TestContainer {
     /**
      * @author Stepan Kopriva (stepan.kopriva at oracle.com)
      */
-    public static class StringContainerEncoder extends CoderAdapter implements Encoder.Text<StringContainer> {
+    public static class StringContainerEncoder implements Encoder.Text<StringContainer> {
 
         @Override
         public String encode(StringContainer object) throws EncodeException {
@@ -325,7 +324,7 @@ public class EncodedObjectTest extends TestContainer {
         }
     }
 
-    public static class CustomIntEncoder extends CoderAdapter implements Encoder.Text<Integer> {
+    public static class CustomIntEncoder implements Encoder.Text<Integer> {
 
         @Override
         public String encode(Integer object) throws EncodeException {
@@ -437,7 +436,7 @@ public class EncodedObjectTest extends TestContainer {
         }
     }
 
-    public static class StringEncoder extends CoderAdapter implements Encoder.Text<String> {
+    public static class StringEncoder implements Encoder.Text<String> {
         @Override
         public String encode(String object) throws EncodeException {
             return object + object;

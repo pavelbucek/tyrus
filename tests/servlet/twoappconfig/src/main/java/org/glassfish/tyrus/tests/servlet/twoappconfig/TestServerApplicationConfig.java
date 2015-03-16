@@ -43,19 +43,12 @@ package org.glassfish.tyrus.tests.servlet.twoappconfig;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.websocket.Endpoint;
 import javax.websocket.server.ServerApplicationConfig;
-import javax.websocket.server.ServerEndpointConfig;
 
 /**
  * @author Stepan Kopriva (stepan.kopriva at oracle.com)
  */
 public class TestServerApplicationConfig implements ServerApplicationConfig {
-
-    @Override
-    public Set<ServerEndpointConfig> getEndpointConfigs(Set<Class<? extends Endpoint>> endpointClasses) {
-        return null;
-    }
 
     @Override
     public Set<Class<?>> getAnnotatedEndpointClasses(Set<Class<?>> scanned) {

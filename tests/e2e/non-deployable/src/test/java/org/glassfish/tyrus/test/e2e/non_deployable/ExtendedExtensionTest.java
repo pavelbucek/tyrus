@@ -43,7 +43,6 @@ package org.glassfish.tyrus.test.e2e.non_deployable;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -194,11 +193,6 @@ public class ExtendedExtensionTest extends TestContainer {
                             .extensions(Arrays.<Extension>asList(EXTENDED_EXTENSION))
                             .build());
             return endpointConfigs;
-        }
-
-        @Override
-        public Set<Class<?>> getAnnotatedEndpointClasses(Set<Class<?>> scanned) {
-            return Collections.<Class<?>>emptySet();
         }
     }
 

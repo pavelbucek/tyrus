@@ -44,9 +44,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.websocket.Endpoint;
 import javax.websocket.server.ServerApplicationConfig;
-import javax.websocket.server.ServerEndpointConfig;
 
 /**
  * @author Stepan Kopriva (stepan.kopriva at oracle.com)
@@ -55,11 +53,6 @@ import javax.websocket.server.ServerEndpointConfig;
 public class SecondServerApplicationConfig implements ServerApplicationConfig {
 
     private static AtomicBoolean annotatedGetterCalled = new AtomicBoolean(false);
-
-    @Override
-    public Set<ServerEndpointConfig> getEndpointConfigs(Set<Class<? extends Endpoint>> endpointClasses) {
-        return null;
-    }
 
     @Override
     public Set<Class<?>> getAnnotatedEndpointClasses(Set<Class<?>> scanned) {

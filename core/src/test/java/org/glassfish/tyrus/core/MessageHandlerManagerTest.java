@@ -51,7 +51,6 @@ import javax.websocket.Decoder;
 import javax.websocket.MessageHandler;
 import javax.websocket.PongMessage;
 
-import org.glassfish.tyrus.core.coder.CoderAdapter;
 import org.glassfish.tyrus.core.coder.CoderWrapper;
 import org.glassfish.tyrus.core.l10n.LocalizationMessages;
 
@@ -164,7 +163,7 @@ public class MessageHandlerManagerTest {
         }
     }
 
-    public static class TestTextDecoder extends CoderAdapter implements Decoder.Text<MessageHandlerManagerTest> {
+    public static class TestTextDecoder implements Decoder.Text<MessageHandlerManagerTest> {
 
         @Override
         public MessageHandlerManagerTest decode(String s) throws DecodeException {

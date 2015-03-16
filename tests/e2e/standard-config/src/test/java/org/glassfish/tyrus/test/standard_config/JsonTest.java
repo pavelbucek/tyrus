@@ -62,7 +62,6 @@ import javax.json.JsonException;
 import javax.json.JsonObject;
 
 import org.glassfish.tyrus.client.ClientManager;
-import org.glassfish.tyrus.core.coder.CoderAdapter;
 import org.glassfish.tyrus.server.Server;
 import org.glassfish.tyrus.test.tools.TestContainer;
 
@@ -141,13 +140,12 @@ public class JsonTest extends TestContainer {
     /**
      * @author Danny Coward (danny.coward at oracle.com)
      */
-    public static class JsonDecoder extends CoderAdapter implements Decoder.Text<JsonObject> {
+    public static class JsonDecoder implements Decoder.Text<JsonObject> {
 
         @Override
         public JsonObject decode(String s) throws DecodeException {
             try {
-                JsonObject jsonObject = Json.createReader(new StringReader(s)).readObject();
-                return jsonObject;
+                return Json.createReader(new StringReader(s)).readObject();
             } catch (JsonException je) {
                 throw new DecodeException(s, "JSON not decoded", je);
             }
@@ -162,7 +160,7 @@ public class JsonTest extends TestContainer {
     /**
      * @author Danny Coward (danny.coward at oracle.com)
      */
-    public static class JsonEncoder extends CoderAdapter implements Encoder.Text<JsonObject> {
+    public static class JsonEncoder implements Encoder.Text<JsonObject> {
 
         @Override
         public String encode(JsonObject o) throws EncodeException {

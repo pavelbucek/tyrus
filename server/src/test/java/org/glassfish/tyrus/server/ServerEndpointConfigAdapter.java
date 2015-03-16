@@ -40,48 +40,16 @@
 
 package org.glassfish.tyrus.server;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import javax.websocket.Decoder;
-import javax.websocket.Encoder;
-import javax.websocket.Extension;
 import javax.websocket.server.ServerEndpointConfig;
 
 /**
  * @author Stepan Kopriva (stepan.kopriva at oracle.com)
  */
 public abstract class ServerEndpointConfigAdapter implements ServerEndpointConfig {
+
     @Override
     public String getPath() {
         return null;
-    }
-
-    @Override
-    public List<Class<? extends Encoder>> getEncoders() {
-        return null;
-    }
-
-    @Override
-    public List<Class<? extends Decoder>> getDecoders() {
-        return null;
-    }
-
-    @Override
-    public List<String> getSubprotocols() {
-        return Collections.emptyList();
-
-    }
-
-    @Override
-    public List<Extension> getExtensions() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public Map<String, Object> getUserProperties() {
-        return Collections.emptyMap();
     }
 
     @Override

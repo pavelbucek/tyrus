@@ -417,11 +417,6 @@ public class EncoderDecoderLifecycleTest extends TestContainer {
                 }
             };
         }
-
-        @Override
-        public Set<Class<?>> getAnnotatedEndpointClasses(Set<Class<?>> scanned) {
-            return Collections.emptySet();
-        }
     }
 
     // encoders/decoders per session

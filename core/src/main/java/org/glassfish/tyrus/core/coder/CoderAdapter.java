@@ -46,6 +46,9 @@ import javax.websocket.EndpointConfig;
  * methods.
  *
  * @author Pavel Bucek (pavel.bucek at oracle.com)
+ * @deprecated no longer needed, since {@link javax.websocket.Decoder#init(javax.websocket.EndpointConfig)},
+ * {@link javax.websocket.Decoder#destroy()}, {@link javax.websocket.Encoder#init(javax.websocket.EndpointConfig)} and
+ * {@link javax.websocket.Encoder#destroy()} are now methods with default (no-op) implementation.
  */
 public abstract class CoderAdapter {
 

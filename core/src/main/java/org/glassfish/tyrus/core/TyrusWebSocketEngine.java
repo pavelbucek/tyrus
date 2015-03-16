@@ -58,7 +58,9 @@ import javax.websocket.Endpoint;
 import javax.websocket.EndpointConfig;
 import javax.websocket.Extension;
 import javax.websocket.WebSocketContainer;
+import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
+import javax.websocket.server.ServerEndpoints;
 
 import org.glassfish.tyrus.core.cluster.ClusterContext;
 import org.glassfish.tyrus.core.extension.ExtendedExtension;
@@ -612,9 +614,24 @@ public class TyrusWebSocketEngine implements WebSocketEngine {
 
         final ErrorCollector collector = new ErrorCollector();
 
+        ServerEndpoints serverEndpoints = endpointClass.getAnnotation(ServerEndpoints.class);
+        if (serverEndpoints != null) {
+            for (ServerEndpoint serverEndpoint : serverEndpoints.value()) {
+                register(serverEndpoint, endpointClass, contextPath, collector);
+            }
+        } else {
+            register(endpointClass.getAnnotation(ServerEndpoint.class), endpointClass, contextPath, collector);
+        }
+    }
+
+    private void register(ServerEndpoint serverEndpoint, Class<?> endpointClass,
+                          String contextPath, ErrorCollector collector)
+
+            throws DeploymentException {
+
         EndpointEventListenerWrapper endpointEventListenerWrapper = new EndpointEventListenerWrapper();
         AnnotatedEndpoint endpoint = AnnotatedEndpoint
-                .fromClass(endpointClass, componentProviderService, true, incomingBufferSize, collector,
+                .fromClass(serverEndpoint, endpointClass, componentProviderService, true, incomingBufferSize, collector,
                            endpointEventListenerWrapper);
         EndpointConfig config = endpoint.getEndpointConfig();
 
@@ -666,19 +683,16 @@ public class TyrusWebSocketEngine implements WebSocketEngine {
         } else {
             final ErrorCollector collector = new ErrorCollector();
 
-            final AnnotatedEndpoint endpoint = AnnotatedEndpoint
-                    .fromClass(endpointClass, componentProviderService, true, incomingBufferSize, collector,
-                               endpointEventListenerWrapper);
-            final EndpointConfig config = endpoint.getEndpointConfig();
-
-            endpointWrapper = new TyrusEndpointWrapper(
-                    endpoint, config, componentProviderService, webSocketContainer, contextPath,
-                    config instanceof ServerEndpointConfig ? ((ServerEndpointConfig) config).getConfigurator() : null,
-                    sessionListener, clusterContext, endpointEventListenerWrapper, parallelBroadcastEnabled);
-
-            if (!collector.isEmpty()) {
-                throw collector.composeComprehensiveException();
+            ServerEndpoints serverEndpoints = endpointClass.getAnnotation(ServerEndpoints.class);
+            if (serverEndpoints != null) {
+                for (ServerEndpoint serverEndpoint : serverEndpoints.value()) {
+                    register(serverEndpoint, endpointClass, contextPath, collector);
+                }
+            } else {
+                register(endpointClass.getAnnotation(ServerEndpoint.class), endpointClass, contextPath, collector);
             }
+
+            return;
         }
 
         register(endpointWrapper);

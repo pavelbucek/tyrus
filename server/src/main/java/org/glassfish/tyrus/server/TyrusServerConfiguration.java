@@ -53,6 +53,7 @@ import javax.websocket.Endpoint;
 import javax.websocket.server.ServerApplicationConfig;
 import javax.websocket.server.ServerEndpoint;
 import javax.websocket.server.ServerEndpointConfig;
+import javax.websocket.server.ServerEndpoints;
 
 import org.glassfish.tyrus.core.ErrorCollector;
 import org.glassfish.tyrus.core.ReflectionHelper;
@@ -139,7 +140,7 @@ public class TyrusServerConfiguration implements ServerApplicationConfig {
             }
 
             // or add any @ServerEndpoint annotated class
-            if (c.isAnnotationPresent(ServerEndpoint.class)) {
+            if (c.isAnnotationPresent(ServerEndpoint.class) || c.isAnnotationPresent(ServerEndpoints.class)) {
                 annotatedClasses.add(c);
 
             } else if (ServerApplicationConfig.class.isAssignableFrom(c)) {

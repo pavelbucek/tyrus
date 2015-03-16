@@ -104,6 +104,7 @@ public class AnnotatedEndpoint extends Endpoint {
     /**
      * Create {@link AnnotatedEndpoint} from class.
      *
+     * @param serverEndpoint
      * @param annotatedClass        annotated class.
      * @param componentProvider     used for instantiating.
      * @param isServerEndpoint      {@code true} iff annotated endpoint is deployed on server side.
@@ -112,10 +113,12 @@ public class AnnotatedEndpoint extends Endpoint {
      * @param endpointEventListener listener of monitored endpoint events.
      * @return new instance.
      */
-    public static AnnotatedEndpoint fromClass(Class<?> annotatedClass, ComponentProviderService componentProvider,
+    public static AnnotatedEndpoint fromClass(ServerEndpoint serverEndpoint, Class<?> annotatedClass,
+                                              ComponentProviderService componentProvider,
                                               boolean isServerEndpoint, int incomingBufferSize, ErrorCollector
             collector, EndpointEventListener endpointEventListener) {
-        return new AnnotatedEndpoint(annotatedClass, null, componentProvider, isServerEndpoint, incomingBufferSize,
+        return new AnnotatedEndpoint(serverEndpoint, annotatedClass, null, componentProvider, isServerEndpoint,
+                                     incomingBufferSize,
                                      collector, endpointEventListener);
     }
 
@@ -132,14 +135,15 @@ public class AnnotatedEndpoint extends Endpoint {
     public static AnnotatedEndpoint fromInstance(
             Object annotatedInstance, ComponentProviderService componentProvider, boolean isServerEndpoint,
             int incomingBufferSize, ErrorCollector collector) {
-        return new AnnotatedEndpoint(annotatedInstance.getClass(), annotatedInstance, componentProvider,
+        return new AnnotatedEndpoint(null, annotatedInstance.getClass(), annotatedInstance, componentProvider,
                                      isServerEndpoint, incomingBufferSize, collector, EndpointEventListener.NO_OP);
     }
 
-    private AnnotatedEndpoint(Class<?> annotatedClass, Object instance, ComponentProviderService componentProvider,
+    private AnnotatedEndpoint(ServerEndpoint serverEndpoint, Class<?> annotatedClass, Object instance,
+                              ComponentProviderService componentProvider,
                               Boolean isServerEndpoint, int incomingBufferSize, ErrorCollector collector,
                               EndpointEventListener endpointEventListener) {
-        this.configuration = createEndpointConfig(annotatedClass, isServerEndpoint, collector);
+        this.configuration = createEndpointConfig(serverEndpoint, annotatedClass, isServerEndpoint, collector);
         this.annotatedInstance = instance;
         this.annotatedClass = annotatedClass;
         this.endpointEventListener = endpointEventListener;
@@ -273,12 +277,11 @@ public class AnnotatedEndpoint extends Endpoint {
         this.onCloseParameters = onCloseParameters;
     }
 
-    private EndpointConfig createEndpointConfig(Class<?> annotatedClass, boolean isServerEndpoint, ErrorCollector
+    private EndpointConfig createEndpointConfig(ServerEndpoint serverEndpoint, Class<?> annotatedClass,
+                                                boolean isServerEndpoint, ErrorCollector
             collector) {
         if (isServerEndpoint) {
-            final ServerEndpoint wseAnnotation = annotatedClass.getAnnotation(ServerEndpoint.class);
-
-            if (wseAnnotation == null) {
+            if (serverEndpoint == null) {
                 collector.addException(new DeploymentException(
                         LocalizationMessages.ENDPOINT_ANNOTATION_NOT_FOUND(ServerEndpoint.class.getSimpleName(),
                                                                            annotatedClass.getName())));
@@ -289,9 +292,9 @@ public class AnnotatedEndpoint extends Endpoint {
             List<Class<? extends Decoder>> decoderClasses = new ArrayList<Class<? extends Decoder>>();
             String[] subProtocols;
 
-            encoderClasses.addAll(Arrays.asList(wseAnnotation.encoders()));
-            decoderClasses.addAll(Arrays.asList(wseAnnotation.decoders()));
-            subProtocols = wseAnnotation.subprotocols();
+            encoderClasses.addAll(Arrays.asList(serverEndpoint.encoders()));
+            decoderClasses.addAll(Arrays.asList(serverEndpoint.decoders()));
+            subProtocols = serverEndpoint.subprotocols();
 
             decoderClasses.addAll(TyrusEndpointWrapper.getDefaultDecoders());
 
@@ -300,12 +303,12 @@ public class AnnotatedEndpoint extends Endpoint {
             if (wseMaxSessionsAnnotation != null) {
                 TyrusServerEndpointConfig.Builder builder =
                         TyrusServerEndpointConfig.Builder
-                                .create(annotatedClass, wseAnnotation.value())
+                                .create(annotatedClass, serverEndpoint.value())
                                 .encoders(encoderClasses)
                                 .decoders(decoderClasses)
                                 .subprotocols(Arrays.asList(subProtocols));
-                if (!wseAnnotation.configurator().equals(ServerEndpointConfig.Configurator.class)) {
-                    builder = builder.configurator(ReflectionHelper.getInstance(wseAnnotation.configurator(),
+                if (!serverEndpoint.configurator().equals(ServerEndpointConfig.Configurator.class)) {
+                    builder = builder.configurator(ReflectionHelper.getInstance(serverEndpoint.configurator(),
                                                                                 collector));
                 }
                 builder.maxSessions(wseMaxSessionsAnnotation.value());
@@ -313,12 +316,12 @@ public class AnnotatedEndpoint extends Endpoint {
             } else {
                 ServerEndpointConfig.Builder builder =
                         ServerEndpointConfig.Builder
-                                .create(annotatedClass, wseAnnotation.value())
+                                .create(annotatedClass, serverEndpoint.value())
                                 .encoders(encoderClasses)
                                 .decoders(decoderClasses)
                                 .subprotocols(Arrays.asList(subProtocols));
-                if (!wseAnnotation.configurator().equals(ServerEndpointConfig.Configurator.class)) {
-                    builder = builder.configurator(ReflectionHelper.getInstance(wseAnnotation.configurator(),
+                if (!serverEndpoint.configurator().equals(ServerEndpointConfig.Configurator.class)) {
+                    builder = builder.configurator(ReflectionHelper.getInstance(serverEndpoint.configurator(),
                                                                                 collector));
                 }
                 return builder.build();

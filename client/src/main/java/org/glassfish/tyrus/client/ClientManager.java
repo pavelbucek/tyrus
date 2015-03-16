@@ -546,7 +546,7 @@ public class ClientManager extends BaseContainer implements WebSocketContainer {
                                     : configuration;
                         } else if ((((Class<?>) o).getAnnotation(ClientEndpoint.class) != null)) {
                             endpoint = AnnotatedEndpoint
-                                    .fromClass((Class) o, componentProvider, false, incomingBufferSize, collector,
+                                    .fromClass(null, (Class) o, componentProvider, false, incomingBufferSize, collector,
                                                EndpointEventListener.NO_OP);
                             config = (ClientEndpointConfig) ((AnnotatedEndpoint) endpoint).getEndpointConfig();
                         } else {

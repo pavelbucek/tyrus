@@ -61,6 +61,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -1515,8 +1516,8 @@ public class TyrusEndpointWrapper {
                                        int[] bounds, Exception e) {
 
         for (int j = bounds[0]; j < bounds[1]; j++) {
-            TyrusFuture<Void> future = new TyrusFuture<Void>();
-            future.setFailure(e);
+            CompletableFuture<Void> future = new CompletableFuture<Void>();
+            future.completeExceptionally(e);
             futures.put(sessions.get(j).getValue(), future);
         }
     }
@@ -1526,8 +1527,8 @@ public class TyrusEndpointWrapper {
      *
      * @return {@link List} of registered {@link Decoder}s.
      */
-    List<Decoder> getDecoders() {
-        return (List<Decoder>) (List<?>) decoders;
+    List<CoderWrapper<Decoder>> getDecoders() {
+        return decoders;
     }
 
     private Class<?> getEncoderClassType(Class<?> encoderClass) {

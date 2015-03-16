@@ -52,6 +52,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -70,7 +71,6 @@ import org.glassfish.tyrus.client.ClientManager;
 import org.glassfish.tyrus.client.ClientProperties;
 import org.glassfish.tyrus.client.SslEngineConfigurator;
 import org.glassfish.tyrus.core.Base64Utils;
-import org.glassfish.tyrus.core.TyrusFuture;
 import org.glassfish.tyrus.core.Utils;
 import org.glassfish.tyrus.spi.ClientEngine;
 import org.glassfish.tyrus.spi.UpgradeRequest;
@@ -370,11 +370,11 @@ public class GrizzlyClientSocket {
             }
 
             // this will block until the SSL engine handshake is complete, so SSL handshake error can be handled here
-            TyrusFuture sslHandshakeFuture = null;
+            CompletableFuture<Void> sslHandshakeFuture = null;
             ExtendedSSLEngineConfigurator clientSSLEngineConfigurator =
                     getSSLEngineConfigurator(requestURI, properties);
             if (clientSSLEngineConfigurator != null) {
-                sslHandshakeFuture = new TyrusFuture();
+                sslHandshakeFuture = new CompletableFuture<Void>();
             }
 
             connectorHandler.setProcessor(
@@ -640,7 +640,7 @@ public class GrizzlyClientSocket {
                                                boolean sharedTransport, Integer sharedTransportTimeout,
                                                Map<String, String> proxyHeaders,
                                                Callable<Void> grizzlyConnector,
-                                               final TyrusFuture<Void> sslHandshakeFuture,
+                                               final CompletableFuture<Void> sslHandshakeFuture,
                                                final UpgradeRequest upgradeRequest) {
         FilterChainBuilder clientFilterChainBuilder = FilterChainBuilder.stateless();
         Filter sslFilter = null;
@@ -664,12 +664,12 @@ public class GrizzlyClientSocket {
                             HostnameVerifier customHostnameVerifier = clientSSLEngineConfigurator.hostnameVerifier;
                             if (customHostnameVerifier != null
                                     && !customHostnameVerifier.verify(uri.getHost(), sslEngine.getSession())) {
-                                sslHandshakeFuture.setFailure(new SSLException(
+                                sslHandshakeFuture.completeExceptionally(new SSLException(
                                         "Server host name verification using " + customHostnameVerifier.getClass()
                                                 + " has failed"));
                                 connection.terminateSilently();
                             } else {
-                                sslHandshakeFuture.setResult(null);
+                                sslHandshakeFuture.complete(null);
                             }
                         }
                     });
@@ -677,7 +677,7 @@ public class GrizzlyClientSocket {
 
                 @Override
                 protected void notifyHandshakeFailed(Connection connection, Throwable t) {
-                    sslHandshakeFuture.setFailure(t);
+                    sslHandshakeFuture.completeExceptionally(t);
                     connection.terminateSilently();
                 }
             };

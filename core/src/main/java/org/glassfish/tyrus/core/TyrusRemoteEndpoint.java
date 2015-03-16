@@ -45,10 +45,11 @@ import java.io.OutputStream;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.ByteBuffer;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -226,17 +227,17 @@ public abstract class TyrusRemoteEndpoint implements javax.websocket.RemoteEndpo
         }
 
         @Override
-        public Future<Void> sendText(String text) {
+        public <T extends Future<Void> & CompletionStage<Void>> T sendText(String text) {
             checkNotNull(text, "text");
             session.restartIdleTimeoutExecutor();
-            return sendAsync(text, AsyncMessageType.TEXT);
+            return (T) sendAsync(text, AsyncMessageType.TEXT);
         }
 
         @Override
-        public Future<Void> sendBinary(ByteBuffer data) {
+        public <T extends Future<Void> & CompletionStage<Void>> T sendBinary(ByteBuffer data) {
             checkNotNull(data, "data");
             session.restartIdleTimeoutExecutor();
-            return sendAsync(data, AsyncMessageType.BINARY);
+            return (T) sendAsync(data, AsyncMessageType.BINARY);
         }
 
         @Override
@@ -256,10 +257,10 @@ public abstract class TyrusRemoteEndpoint implements javax.websocket.RemoteEndpo
         }
 
         @Override
-        public Future<Void> sendObject(Object data) {
+        public <T extends Future<Void> & CompletionStage<Void>> T sendObject(Object data) {
             checkNotNull(data, "data");
             session.restartIdleTimeoutExecutor();
-            return sendAsync(data, AsyncMessageType.OBJECT);
+            return (T) sendAsync(data, AsyncMessageType.OBJECT);
         }
 
         @Override
@@ -284,8 +285,8 @@ public abstract class TyrusRemoteEndpoint implements javax.websocket.RemoteEndpo
          * @param type    message type
          * @return message sending callback {@link Future}
          */
-        private Future<Void> sendAsync(final Object message, final AsyncMessageType type) {
-            Future<?> result = null;
+        private CompletableFuture<Void> sendAsync(final Object message, final AsyncMessageType type) {
+            CompletableFuture<?> result = null;
 
             switch (type) {
                 case TEXT:
@@ -305,37 +306,12 @@ public abstract class TyrusRemoteEndpoint implements javax.websocket.RemoteEndpo
                     break;
             }
 
-            final Future<?> finalResult = result;
-
-            return new Future<Void>() {
+            return result.thenApply(new Function<Object, Void>() {
                 @Override
-                public boolean cancel(boolean mayInterruptIfRunning) {
-                    return finalResult.cancel(mayInterruptIfRunning);
-                }
-
-                @Override
-                public boolean isCancelled() {
-                    return finalResult.isCancelled();
-                }
-
-                @Override
-                public boolean isDone() {
-                    return finalResult.isDone();
-                }
-
-                @Override
-                public Void get() throws InterruptedException, ExecutionException {
-                    finalResult.get();
+                public Void apply(Object o) {
                     return null;
                 }
-
-                @Override
-                public Void get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
-                        TimeoutException {
-                    finalResult.get(timeout, unit);
-                    return null;
-                }
-            };
+            });
         }
 
         /**
@@ -372,40 +348,16 @@ public abstract class TyrusRemoteEndpoint implements javax.websocket.RemoteEndpo
     }
 
     @SuppressWarnings("unchecked")
-    Future<?> sendSyncObject(Object o) {
+    CompletableFuture<?> sendSyncObject(Object o) {
         Object toSend;
         try {
             session.getDebugContext()
                    .appendLogMessage(LOGGER, Level.FINEST, DebugContext.Type.MESSAGE_OUT, "Sending object: ", o);
             toSend = endpointWrapper.doEncode(session, o);
         } catch (final Exception e) {
-            return new Future<Object>() {
-                @Override
-                public boolean cancel(boolean mayInterruptIfRunning) {
-                    return false;
-                }
-
-                @Override
-                public boolean isCancelled() {
-                    return false;
-                }
-
-                @Override
-                public boolean isDone() {
-                    return true;
-                }
-
-                @Override
-                public Object get() throws InterruptedException, ExecutionException {
-                    throw new ExecutionException(e);
-                }
-
-                @Override
-                public Object get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
-                        TimeoutException {
-                    throw new ExecutionException(e);
-                }
-            };
+            CompletableFuture<Object> objectCompletableFuture = new CompletableFuture<Object>();
+            objectCompletableFuture.completeExceptionally(e);
+            return objectCompletableFuture;
         }
 
         if (toSend instanceof String) {

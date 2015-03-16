@@ -45,6 +45,7 @@ import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EncodeException;
 import javax.websocket.Encoder;
+import javax.websocket.EndpointConfig;
 
 /**
  * {@link Encoder} and {@link Decoder} implementation for {@link ByteBuffer}.
@@ -65,5 +66,15 @@ public class NoOpByteBufferCoder implements Decoder.Binary<ByteBuffer>, Encoder.
     @Override
     public ByteBuffer encode(ByteBuffer object) throws EncodeException {
         return object;
+    }
+
+    @Override
+    public void init(EndpointConfig config) {
+        // do nothing. Has to be here - compiler error otherwise. (Encoder/Decoder default method clash).
+    }
+
+    @Override
+    public void destroy() {
+        // do nothing. Has to be here - compiler error otherwise. (Encoder/Decoder default method clash).
     }
 }

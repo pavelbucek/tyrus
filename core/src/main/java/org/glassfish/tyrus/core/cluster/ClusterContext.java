@@ -42,6 +42,7 @@ package org.glassfish.tyrus.core.cluster;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Future;
 
 import javax.websocket.CloseReason;
@@ -73,7 +74,7 @@ public abstract class ClusterContext {
      * acknowledge from the other node that the message has been successfully sent. If there is any exception, it will
      * be wrapped into {@link java.util.concurrent.ExecutionException} and thrown.
      */
-    public abstract Future<Void> sendText(String sessionId, String text);
+    public abstract <T extends Future<Void> & CompletionStage<Void>> T sendText(String sessionId, String text);
 
     /**
      * Send partial text message.
@@ -85,7 +86,7 @@ public abstract class ClusterContext {
      * acknowledge from the other node that the message has been successfully sent. If there is any exception, it will
      * be wrapped into {@link java.util.concurrent.ExecutionException} and thrown.
      */
-    public abstract Future<Void> sendText(String sessionId, String text, boolean isLast);
+    public abstract <T extends Future<Void> & CompletionStage<Void>> T sendText(String sessionId, String text, boolean isLast);
 
     /**
      * Send binary message.
@@ -96,7 +97,7 @@ public abstract class ClusterContext {
      * acknowledge from the other node that the message has been successfully sent. If there is any exception, it will
      * be wrapped into {@link java.util.concurrent.ExecutionException} and thrown.
      */
-    public abstract Future<Void> sendBinary(String sessionId, byte[] data);
+    public abstract <T extends Future<Void> & CompletionStage<Void>> T sendBinary(String sessionId, byte[] data);
 
     /**
      * Send partial binary message.
@@ -108,7 +109,7 @@ public abstract class ClusterContext {
      * acknowledge from the other node that the message has been successfully sent. If there is any exception, it will
      * be wrapped into {@link java.util.concurrent.ExecutionException} and thrown.
      */
-    public abstract Future<Void> sendBinary(String sessionId, byte[] data, boolean isLast);
+    public abstract <T extends Future<Void> & CompletionStage<Void>> T sendBinary(String sessionId, byte[] data, boolean isLast);
 
     /**
      * Send ping message.
@@ -119,7 +120,7 @@ public abstract class ClusterContext {
      * acknowledge from the other node that the message has been successfully sent. If there is any exception, it will
      * be wrapped into {@link java.util.concurrent.ExecutionException} and thrown.
      */
-    public abstract Future<Void> sendPing(String sessionId, byte[] data);
+    public abstract <T extends Future<Void> & CompletionStage<Void>> T sendPing(String sessionId, byte[] data);
 
     /**
      * Send pong message.
@@ -130,7 +131,7 @@ public abstract class ClusterContext {
      * acknowledge from the other node that the message has been successfully sent. If there is any exception, it will
      * be wrapped into {@link java.util.concurrent.ExecutionException} and thrown.
      */
-    public abstract Future<Void> sendPong(String sessionId, byte[] data);
+    public abstract <T extends Future<Void> & CompletionStage<Void>> T sendPong(String sessionId, byte[] data);
 
     /**
      * Send text message with {@link javax.websocket.SendHandler}.

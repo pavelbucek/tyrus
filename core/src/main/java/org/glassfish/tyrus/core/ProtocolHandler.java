@@ -45,6 +45,7 @@ import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -262,11 +263,11 @@ public final class ProtocolHandler {
      * Not message frames - ping/pong/...
      */
     /* package */
-    final Future<Frame> send(TyrusFrame frame) {
+    final CompletableFuture<Frame> send(TyrusFrame frame) {
         return send(frame, null, true);
     }
 
-    private Future<Frame> send(TyrusFrame frame, CompletionHandler<Frame> completionHandler, Boolean useTimeout) {
+    private CompletableFuture<Frame> send(TyrusFrame frame, CompletionHandler<Frame> completionHandler, Boolean useTimeout) {
         return write(frame, completionHandler, useTimeout);
     }
 
@@ -274,7 +275,7 @@ public final class ProtocolHandler {
         return write(frame, completionHandler, useTimeout);
     }
 
-    public Future<Frame> send(byte[] data) {
+    public CompletableFuture<Frame> send(byte[] data) {
         lock.lock();
         try {
             checkSendingFragment();
@@ -307,7 +308,7 @@ public final class ProtocolHandler {
         }
     }
 
-    public Future<Frame> send(String data) {
+    public CompletableFuture<Frame> send(String data) {
         lock.lock();
 
         try {
@@ -471,10 +472,10 @@ public final class ProtocolHandler {
         return send;
     }
 
-    private Future<Frame> write(final TyrusFrame frame, final CompletionHandler<Frame> completionHandler,
+    private CompletableFuture<Frame> write(final TyrusFrame frame, final CompletionHandler<Frame> completionHandler,
                                 boolean useTimeout) {
         final Writer localWriter = writer;
-        final TyrusFuture<Frame> future = new TyrusFuture<Frame>();
+        final CompletableFuture<Frame> future = new CompletableFuture<Frame>();
 
         if (localWriter == null) {
             throw new IllegalStateException(LocalizationMessages.CONNECTION_NULL());
@@ -490,7 +491,7 @@ public final class ProtocolHandler {
     private Future<Frame> write(final ByteBuffer frame, final CompletionHandler<Frame> completionHandler,
                                 boolean useTimeout) {
         final Writer localWriter = writer;
-        final TyrusFuture<Frame> future = new TyrusFuture<Frame>();
+        final CompletableFuture<Frame> future = new CompletableFuture<Frame>();
 
         if (localWriter == null) {
             throw new IllegalStateException(LocalizationMessages.CONNECTION_NULL());
@@ -826,10 +827,10 @@ public final class ProtocolHandler {
     private static class CompletionHandlerWrapper extends CompletionHandler<ByteBuffer> {
 
         private final CompletionHandler<Frame> frameCompletionHandler;
-        private final TyrusFuture<Frame> future;
+        private final CompletableFuture<Frame> future;
         private final Frame frame;
 
-        private CompletionHandlerWrapper(CompletionHandler<Frame> frameCompletionHandler, TyrusFuture<Frame> future,
+        private CompletionHandlerWrapper(CompletionHandler<Frame> frameCompletionHandler, CompletableFuture<Frame> future,
                                          Frame frame) {
             this.frameCompletionHandler = frameCompletionHandler;
             this.future = future;
@@ -843,7 +844,7 @@ public final class ProtocolHandler {
             }
 
             if (future != null) {
-                future.setFailure(new RuntimeException(LocalizationMessages.FRAME_WRITE_CANCELLED()));
+                future.completeExceptionally(new RuntimeException(LocalizationMessages.FRAME_WRITE_CANCELLED()));
             }
         }
 
@@ -854,7 +855,7 @@ public final class ProtocolHandler {
             }
 
             if (future != null) {
-                future.setFailure(throwable);
+                future.completeExceptionally(throwable);
             }
         }
 
@@ -865,7 +866,7 @@ public final class ProtocolHandler {
             }
 
             if (future != null) {
-                future.setResult(frame);
+                future.complete(frame);
             }
         }
 

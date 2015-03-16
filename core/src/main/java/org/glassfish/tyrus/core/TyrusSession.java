@@ -141,7 +141,7 @@ public class TyrusSession implements Session, DistributedSession {
                 : Collections.unmodifiableMap(new HashMap<String, String>(pathParameters));
         this.basicRemote = new TyrusRemoteEndpoint.Basic(this, socket, endpointWrapper);
         this.asyncRemote = new TyrusRemoteEndpoint.Async(this, socket, endpointWrapper);
-        this.handlerManager = MessageHandlerManager.fromDecoderInstances(endpointWrapper.getDecoders());
+        this.handlerManager = MessageHandlerManager.fromCoderInstances(endpointWrapper.getDecoders());
         this.userPrincipal = principal;
         this.requestParameterMap = requestParameterMap == null ? Collections.<String, List<String>>emptyMap()
                 : Collections.unmodifiableMap(new HashMap<String, List<String>>(requestParameterMap));

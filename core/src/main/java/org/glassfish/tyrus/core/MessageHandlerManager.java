@@ -117,11 +117,21 @@ class MessageHandlerManager {
     static MessageHandlerManager fromDecoderInstances(List<Decoder> decoders) {
         List<Class<? extends Decoder>> decoderList = new ArrayList<Class<? extends Decoder>>();
         for (Decoder decoder : decoders) {
-            if (decoder instanceof CoderWrapper) {
-                decoderList.add(((CoderWrapper<? extends Decoder>) decoder).getCoderClass());
-            } else {
-                decoderList.add(decoder.getClass());
-            }
+            decoderList.add(decoder.getClass());
+        }
+
+        return new MessageHandlerManager(decoderList);
+    }
+
+    /**
+     * Construct manager.
+     *
+     * @param decoders registered {@link Decoder}s.
+     */
+    static MessageHandlerManager fromCoderInstances(List<CoderWrapper<Decoder>> decoders) {
+        List<Class<? extends Decoder>> decoderList = new ArrayList<Class<? extends Decoder>>();
+        for (CoderWrapper<Decoder> decoder : decoders) {
+            decoderList.add(decoder.getCoderClass());
         }
 
         return new MessageHandlerManager(decoderList);

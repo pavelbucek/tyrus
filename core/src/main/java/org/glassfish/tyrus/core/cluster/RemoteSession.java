@@ -52,6 +52,8 @@ import java.security.Principal;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -448,13 +450,13 @@ public class RemoteSession implements Session, DistributedSession {
             }
 
             @Override
-            public Future<Void> sendText(String text) {
+            public <T extends Future<Void> & CompletionStage<Void>> T sendText(String text) {
                 checkNotNull(text, "text");
                 return clusterContext.sendText(sessionId, text);
             }
 
             @Override
-            public Future<Void> sendBinary(ByteBuffer data) {
+            public <T extends Future<Void> & CompletionStage<Void>> T sendBinary(ByteBuffer data) {
                 checkNotNull(data, "data");
                 return clusterContext.sendBinary(sessionId, Utils.getRemainingArray(data));
             }
@@ -467,8 +469,7 @@ public class RemoteSession implements Session, DistributedSession {
             }
 
             @Override
-            public Future<Void> sendObject(Object data) {
-
+            public <T extends Future<Void> & CompletionStage<Void>> T sendObject(Object data) {
                 // TODO 1: where should we handle encoding?
                 // TODO 1: encoding instances cannot be shared among the cluster
                 // TODO 1: would be fair to pass this object to Session owner, but
@@ -479,38 +480,14 @@ public class RemoteSession implements Session, DistributedSession {
 
                 checkNotNull(data, "data");
 
-                final Future<Void> future;
+                final CompletableFuture<Void> future;
                 final Object toSend;
                 try {
                     toSend = endpointWrapper.doEncode(session, data);
                 } catch (final Exception e) {
-                    return new Future<Void>() {
-                        @Override
-                        public boolean cancel(boolean mayInterruptIfRunning) {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean isCancelled() {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean isDone() {
-                            return true;
-                        }
-
-                        @Override
-                        public Void get() throws InterruptedException, ExecutionException {
-                            throw new ExecutionException(e);
-                        }
-
-                        @Override
-                        public Void get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException,
-                                TimeoutException {
-                            throw new ExecutionException(e);
-                        }
-                    };
+                    CompletableFuture<Void> voidCompletableFuture = new CompletableFuture<Void>();
+                    voidCompletableFuture.completeExceptionally(e);
+                    return (T) voidCompletableFuture;
                 }
                 if (toSend instanceof String) {
                     future = clusterContext.sendText(sessionId, (String) toSend);
@@ -528,7 +505,7 @@ public class RemoteSession implements Session, DistributedSession {
                     future = null;
                 }
 
-                return future;
+                return (T) future;
             }
 
             @Override

@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.AbstractExecutorService;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -72,7 +73,6 @@ import org.glassfish.tyrus.core.DebugContext;
 import org.glassfish.tyrus.core.ErrorCollector;
 import org.glassfish.tyrus.core.ReflectionHelper;
 import org.glassfish.tyrus.core.TyrusEndpointWrapper;
-import org.glassfish.tyrus.core.TyrusFuture;
 import org.glassfish.tyrus.core.TyrusSession;
 import org.glassfish.tyrus.core.Utils;
 import org.glassfish.tyrus.core.monitoring.EndpointEventListener;
@@ -487,12 +487,13 @@ public class ClientManager extends BaseContainer implements WebSocketContainer {
             executorService = getExecutorService();
         }
 
-        final TyrusFuture<Session> future = new TyrusFuture<Session>() {
+        final CompletableFuture<Session> future = new CompletableFuture<Session>() {
+
             @Override
-            public void setFailure(Throwable throwable) {
-                super.setFailure(throwable);
+            public boolean completeExceptionally(Throwable ex) {
                 // make sure that the number of active clients decreases each time an attempt to connect fails
                 clientActivityListener.onConnectionTerminated();
+                return super.completeExceptionally(ex);
             }
         };
 
@@ -563,11 +564,11 @@ public class ClientManager extends BaseContainer implements WebSocketContainer {
 
                     // fail fast when there is some issue with client endpoint.
                     if (!collector.isEmpty()) {
-                        future.setFailure(collector.composeComprehensiveException());
+                        future.completeExceptionally(collector.composeComprehensiveException());
                         return;
                     }
                 } catch (Exception e) {
-                    future.setFailure(e);
+                    future.completeExceptionally(e);
                     return;
                 }
 
@@ -675,7 +676,7 @@ public class ClientManager extends BaseContainer implements WebSocketContainer {
                                             }
                                         }
 
-                                        future.setResult(listener.getSession());
+                                        future.complete(listener.getSession());
                                         return;
                                     } else {
                                         // timeout!
@@ -694,7 +695,7 @@ public class ClientManager extends BaseContainer implements WebSocketContainer {
                                 throw new DeploymentException("Handshake response not received.");
                             } catch (Exception e) {
                                 if (reconnectHandler == null || !reconnectHandler.onConnectFailure(e)) {
-                                    future.setFailure(e);
+                                    future.completeExceptionally(e);
                                     return;
                                 } else {
                                     long delay = reconnectHandler.getDelay();

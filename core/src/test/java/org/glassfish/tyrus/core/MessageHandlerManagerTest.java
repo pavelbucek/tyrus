@@ -126,8 +126,9 @@ public class MessageHandlerManagerTest {
 
     @Test(expected = IllegalStateException.class)
     public void multipleTextHandlersWithDecoder() {
-        MessageHandlerManager messageHandlerManager = MessageHandlerManager.fromDecoderInstances(Arrays.<Decoder>asList(
-                new CoderWrapper<Decoder>(new TestTextDecoder(), MessageHandlerManagerTest.class)));
+        MessageHandlerManager messageHandlerManager = MessageHandlerManager
+                .fromCoderInstances(Arrays.asList(
+                        new CoderWrapper<Decoder>(new TestTextDecoder(), MessageHandlerManagerTest.class)));
 
         messageHandlerManager.addMessageHandler(new MessageHandler.Whole<MessageHandlerManagerTest>() {
             @Override

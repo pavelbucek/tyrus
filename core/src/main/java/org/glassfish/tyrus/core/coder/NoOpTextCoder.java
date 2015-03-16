@@ -43,6 +43,7 @@ import javax.websocket.DecodeException;
 import javax.websocket.Decoder;
 import javax.websocket.EncodeException;
 import javax.websocket.Encoder;
+import javax.websocket.EndpointConfig;
 
 /**
  * @author Stepan Kopriva (stepan.kopriva at oracle.com)
@@ -61,5 +62,15 @@ public class NoOpTextCoder implements Decoder.Text<String>, Encoder.Text<String>
     @Override
     public String encode(String object) throws EncodeException {
         return object;
+    }
+
+    @Override
+    public void init(EndpointConfig config) {
+        // do nothing. Has to be here - compiler error otherwise. (Encoder/Decoder default method clash).
+    }
+
+    @Override
+    public void destroy() {
+        // do nothing. Has to be here - compiler error otherwise. (Encoder/Decoder default method clash).
     }
 }

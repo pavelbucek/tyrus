@@ -43,6 +43,7 @@ package org.glassfish.tyrus.core;
 import java.nio.ByteBuffer;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
@@ -276,7 +277,7 @@ public class TyrusWebSocket {
      * @param data data to be sent.
      * @return {@link Future} which could be used to control/check the sending completion state.
      */
-    public Future<Frame> sendBinary(byte[] data) {
+    public CompletableFuture<Frame> sendBinary(byte[] data) {
         checkConnectedState();
         return protocolHandler.send(data);
     }
@@ -298,7 +299,7 @@ public class TyrusWebSocket {
      * @param data data to be sent.
      * @return {@link Future} which could be used to control/check the sending completion state.
      */
-    public Future<Frame> sendText(String data) {
+    public CompletableFuture<Frame> sendText(String data) {
         checkConnectedState();
         return protocolHandler.send(data);
     }

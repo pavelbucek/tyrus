@@ -40,9 +40,6 @@
 
 package org.glassfish.tyrus.core.coder;
 
-import javax.websocket.Decoder;
-import javax.websocket.Encoder;
-
 /**
  * Wrapper of coders storing the coder coder class (and optionally coder instance), return type of the encode / decode
  * method and coder class.
@@ -50,7 +47,7 @@ import javax.websocket.Encoder;
  * @author Stepan Kopriva (stepan.kopriva at oracle.com)
  * @author Pavel Bucek (pavel.bucek at oracle.com)
  */
-public class CoderWrapper<T> implements Decoder, Encoder {
+public class CoderWrapper<T> {
 
     private final Class<? extends T> coderClass;
     private final T coder;

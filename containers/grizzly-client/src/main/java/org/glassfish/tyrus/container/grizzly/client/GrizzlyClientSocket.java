@@ -54,7 +54,6 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -383,9 +382,8 @@ public class GrizzlyClientSocket {
                                       sharedTransportTimeout, proxyHeaders, grizzlyConnector, sslHandshakeFuture,
                                       upgradeRequest));
 
-            connectionGrizzlyFuture = connectorHandler.connect(connectAddress);
-
             try {
+                connectionGrizzlyFuture = connectorHandler.connect(connectAddress);
                 final Connection connection = connectionGrizzlyFuture.get(timeoutMs, TimeUnit.MILLISECONDS);
 
                 // wait for the SSL handshake to finish and handle error, if they occur
@@ -403,14 +401,6 @@ public class GrizzlyClientSocket {
                 LOGGER.log(Level.CONFIG, String.format("Connected to '%s'.", connection.getPeerAddress()));
 
                 return;
-            } catch (InterruptedException interruptedException) {
-                LOGGER.log(Level.CONFIG, String.format("Connection to '%s' failed.", requestURI), interruptedException);
-                exception = interruptedException;
-                closeTransport(privateTransport);
-            } catch (TimeoutException timeoutException) {
-                LOGGER.log(Level.CONFIG, String.format("Connection to '%s' failed.", requestURI), timeoutException);
-                exception = timeoutException;
-                closeTransport(privateTransport);
             } catch (ExecutionException executionException) {
                 LOGGER.log(Level.CONFIG, String.format("Connection to '%s' failed.", requestURI), executionException);
 
@@ -421,6 +411,10 @@ public class GrizzlyClientSocket {
                     ProxySelector.getDefault().connectFailed(requestURI, socketAddress, ioException);
                 }
 
+                closeTransport(privateTransport);
+            } catch (Exception e) {
+                LOGGER.log(Level.CONFIG, String.format("Connection to '%s' failed.", requestURI), e);
+                exception = e;
                 closeTransport(privateTransport);
             }
         }
